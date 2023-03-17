@@ -6,7 +6,9 @@ import Loader from './Loader';
 
 import { storage } from "../firebase.config";
 import { ref, getDownloadURL, uploadBytesResumable, getStorage, deleteObject, } from "firebase/storage";
-import { guardarItem } from '../utils/firebaseFunctions';
+import { guardarItem, ObtenerTodosFoodItems } from '../utils/firebaseFunctions';
+import { actionType } from '../context/reducer';
+import { useStateValue } from '../context/StateProvider';
 
 const CreateContainer = () => {
 
@@ -19,6 +21,8 @@ const CreateContainer = () => {
   const [alertaEstatus, setAlertaEstatus] = useState("danger");
   const [msj, setMsj] = useState(false);
   const [cargando, setCargando] = useState(false);
+  const [{ foodItems }, dispatch] = useStateValue();
+
 
 
 const subirArchivo = (e) => {
@@ -160,6 +164,8 @@ uploadTask.on('state_changed',
         setCargando(false);
       },4000);
     }
+
+    fetchData();
   };
 
   const borrarData = () => {
@@ -168,6 +174,15 @@ uploadTask.on('state_changed',
     setCalorias("");
     setPrecio("");
     setCategoria("Selecciona una Categoría");
+  };
+
+  const fetchData = async () => {
+    await ObtenerTodosFoodItems().then((data) => {
+      dispatch({
+        type: actionType.SET_FOOD_ITEMS,
+        foodItems: data,
+      });
+    });
   };
 
   return (
